@@ -1,0 +1,210 @@
+﻿@page "/Deuda/Create"
+@inject HttpClient http
+@inject IJSRuntime js
+@using CurrieTechnologies.Razor.SweetAlert2;
+@using Microsoft.AspNetCore.Components.Forms
+@inject SweetAlertService swl;
+@using SEYA.APP.Client.Components.Buttons
+@using SEYA.APP.Shared.DTO.Cliente;
+@using SEYA.APP.Shared.DTO.Deuda;
+@using SEYA.APP.Shared.Models
+<h3>Registrar deuda</h3>
+
+
+<div style="display: @(showModal ? "block" : "none"); position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0, 0, 0, 0.4);">
+    <div style="background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h5 style="margin: 0;">Lista de Nombres</h5>
+            <button type="button" style="background: none; border: none; cursor: pointer; font-size: 24px; font-weight: bold; color: #000;" @onclick="HideModal">&times;</button>
+        </div>
+        <div>
+            <h3>Cliente</h3>
+
+            <div class="input-group my-2 align-items-center">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" style="margin-right: 5px;"><i class="fas fa-search"></i></span>
+                </div>
+                <input type="text" class="form-control px-2" placeholder="Buscar" @bind="@txt" />
+                <div class="input-group-append" style="margin-left: 5px;">
+                    <button class="btn btn-primary ml-2" type="button" @onclick="(() => Buscar(txt))">Buscar</button>
+                </div>
+            </div>
+
+            @if (Clientes == null)
+            {
+                <text>Cargando...</text>
+            }
+            else if (Clientes.Length == 0)
+            {
+                <text>No hay categorías en la base de datos.</text>
+            }
+            else
+            {
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th hidden>Id</th>
+                            <th>Nombre</th>
+                            <th>Apellido</th>
+                            <th>Cedula</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var Cliente in Clientes)
+                        {
+                            <tr>
+                                <td hidden>@Cliente.Id</td>
+                                <td>@Cliente.Nombre</td>
+                                <td>@Cliente.Apellido</td>
+                                <td>@Cliente.Cedula</td>
+                                <td>
+                                    <button class="btn btn-success" type="button" @onclick="(()=>SelectName(Cliente))">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+</div>
+
+
+<div class="container">
+    <div class="row">
+
+        <div class="col-md-8">
+            <!-- Crea la interfaz de usuario -->
+            <!-- Card principal -->
+            <div class="card">
+                <div class="card-body">
+                    <!-- Card de Cliente -->
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Datos de la deuda</h5>
+                            <EditForm Model="@Deuda" OnValidSubmit="@SaveForm">
+
+
+
+                                <div class="form-field">
+                                    <label>Descripcion</label>
+                                    <div>
+                                        <InputText class="form-control" @bind-Value="@Deuda.Descripcion"></InputText>
+                                        <ValidationMessage For="@(() => Deuda.Descripcion)" />
+                                    </div>
+                                </div>
+
+                                <div class="form-field">
+                                    <label>Valor</label>
+                                    <div>
+                                        <InputNumber class="form-control" @bind-Value="@Deuda.ValorTotal"></InputNumber>
+                                        <ValidationMessage For="@(() => Deuda.ValorTotal)" />
+                                    </div>
+                                </div>
+
+                                <div class="form-field">
+                                    <label>Numero de cuotas</label>
+                                    <div>
+                                        <InputNumber class="form-control" @bind-Value="@Deuda.CantidadCuotas"></InputNumber>
+                                        <ValidationMessage For="@(() => Deuda.CantidadCuotas)" />
+                                    </div>
+                                </div>
+                                <br>
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Cliente</h5>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" placeholder="Buscar Cliente" readonly />
+                                            @if (!showModal)
+                                            {
+                                                <button class="btn btn-primary ml-2" type="button" @onclick="(() => ShowNameList())">...</button>
+                                            }
+
+                                        </div>
+
+                                        @if (clienteSeleccionado != null)
+                                        {
+                                            <div class="form-group mt-3">
+                                                <label for="nombreCliente">Nombre:</label>
+                                                <input type="text" class="form-control" id="nombreCliente" value="@($"{clienteSeleccionado.Nombre} {clienteSeleccionado.Apellido}")" readonly />
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label for="documentoCliente">Nro Cedula:</label>
+                                                <input type="text" class="form-control" id="documentoCliente" value="@clienteSeleccionado.Cedula" readonly />
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+
+
+                                <button type="submit" @onclick=@SaveForm class="btn btn-primary my-2">Guardar</button>
+
+                                <DataAnnotationsValidator />
+
+                            </EditForm>
+                        </div>
+
+
+
+
+                    </div>
+
+                </div>
+
+                <!-- Card de Comprobante -->
+                <!-- Card de Comprobante -->
+                <!-- Card de Pago -->
+                <!-- Card de Pago y Totales -->
+
+
+
+
+
+            </div>
+
+        </div>
+    </div>
+
+
+</div>
+
+
+
+
+
+
+<ButtonBack Goto="Deudas/List"></ButtonBack>
+
+@code {
+    Comprobante Deuda { get; set; } = new Comprobante();
+
+ 
+
+    private async void SaveForm()
+    {
+        
+ 
+            Deuda.ClienteId = clienteSeleccionado.Id;
+            var resp = await http.PutAsJsonAsync($"{SEYA.APP.Shared.API.url}/Deuda", Deuda);
+            if (resp.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                await new Utils.Functions(js, swl).ShowConfirmation("", "");
+            }
+            else
+            {
+                await new Utils.Functions(js, swl).ShowError("No fue posible registrar.", "Error");
+            }
+
+            clienteSeleccionado = null;
+            Deuda = new DeudaCreateDTO();
+        
+
+
+    }
+
+}

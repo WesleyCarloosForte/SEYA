@@ -1,0 +1,148 @@
+﻿@page "/usuario/form"
+@using CurrieTechnologies.Razor.SweetAlert2;
+@using SEYA.APP.Client.Components.Buttons
+@using SEYA.APP.Shared.DTO.Funcionario;
+@using SEYA.APP.Shared.Models
+@using System.Collections.Generic
+@inject HttpClient http
+@inject NavigationManager uriHelper
+
+@if (roles != null )
+{
+
+    <EditForm Model="@Usuario" OnValidSubmit="@SaveForm">
+
+
+        <div class="form-field">
+            <label>Nombre</label>
+            <div>
+                <InputText class="form-control" @bind-Value="@Usuario.Nombre"></InputText>
+                <ValidationMessage For="@(() => Usuario.Nombre)" />
+            </div>
+        </div>
+
+        <div class="form-field">
+            <label>Apellido</label>
+            <div>
+                <InputText class="form-control" @bind-Value="@Usuario.Apellido"></InputText>
+                <ValidationMessage For="@(() => Usuario.Apellido)" />
+            </div>
+        </div>
+
+        <div class="form-field">
+            <label>Dirección</label>
+            <div>
+                <InputText class="form-control" @bind-Value="@Usuario.Direccion"></InputText>
+                <ValidationMessage For="@(() => Usuario.Direccion)" />
+            </div>
+        </div>
+
+        <div class="form-field">
+            <label>Teléfono</label>
+            <div>
+                <InputText class="form-control" @bind-Value="@Usuario.Telefono"></InputText>
+                <ValidationMessage For="@(() => Usuario.Telefono)" />
+            </div>
+        </div>
+
+        <div class="form-field">
+            <label>Email</label>
+            <div>
+                <InputText class="form-control" @bind-Value="@Usuario.Correo"></InputText>
+                <ValidationMessage For="@(() => Usuario.Correo)" />
+            </div>
+        </div>
+
+        <div class="form-field">
+            <label>Número de Documento</label>
+            <div>
+                <InputText class="form-control" @bind-Value="@Usuario.Cedula"></InputText>
+                <ValidationMessage For="@(() => Usuario.Cedula)" />
+            </div>
+        </div>
+
+
+        <div class="form-field">
+            <label>Nombre de usuario</label>
+            <div>
+                <InputText class="form-control" @bind-Value="@Usuario.UserName"></InputText>
+                <ValidationMessage For="@(() => Usuario.UserName)" />
+            </div>
+        </div>
+
+        <div class="form-field">
+            <label>Password</label>
+            <div>
+                <InputText class="form-control"  @bind-Value="@Usuario.Password"></InputText>
+                <ValidationMessage For="@(() => Usuario.Password)" />
+            </div>
+        </div>
+
+        <div class="form-field">
+            <label>Rol</label>
+            <div>
+                <select class="form-control" @bind="@Usuario.RolId">
+                    @foreach (var rol in roles)
+                    {
+                        <option value="@rol.Id">@rol.RolName</option>
+                    }
+                </select>
+                <ValidationMessage For="@(() => Usuario.RolId)" />
+            </div>
+        </div>
+
+  
+        
+
+        <button type="submit" class="btn btn-primary my-2">Guardar</button>
+
+        <DataAnnotationsValidator />
+
+    </EditForm>
+}
+else
+{
+    <p>Cargando datos...</p>
+}
+<ButtonBack Goto="Usuario/List"></ButtonBack>
+@code {
+    [Parameter]
+    public EventCallback Save { get; set; }
+    [Parameter]
+    public int? Id { get; set; } = 0;
+    [Parameter]
+    public FuncionarioCreateDTO Usuario { get; set; } = new FuncionarioCreateDTO();
+    List<Rol> roles;
+    [Inject]
+    IJSRuntime runtime { get; set; }
+    [Inject]
+    SweetAlertService swl { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        roles = new List<Rol> ();
+        roles.Add(new Rol { RolName = "----------", Id = 0 });
+
+        var result = await http.GetFromJsonAsync<List<Rol>>($"{SEYA.APP.Shared.API.url}/Rol");
+
+        roles.AddRange(result);
+
+    }
+
+    private async Task SaveForm()
+    {
+
+        if (Usuario.RolId ==0)
+        {
+            await new Utils.Functions(runtime, swl).ShowError("Seleccione un rol", "");
+        }
+
+        else 
+        {
+            await Save.InvokeAsync();
+            uriHelper.NavigateTo("Usuario/list");
+        }
+
+
+    }
+}

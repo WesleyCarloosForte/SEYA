@@ -1,0 +1,107 @@
+﻿@page "/Deuda/lista/{Id:int}"
+@inject HttpClient http
+@inject IJSRuntime js
+@using CurrieTechnologies.Razor.SweetAlert2;
+@using Microsoft.AspNetCore.Components.Forms
+@inject SweetAlertService swl;
+@using SEYA.APP.Shared.Models
+<h3>Cuotas</h3>
+
+
+
+@if (Deudas == null)
+{
+    <text>Cargando...</text>
+}
+else if (Deudas.Length == 0)
+{
+    <text>No hay Deudas en la base de datos.</text>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th hidden>Deuda referente a Cuente Nro</th>
+                <th>Nro Cuota</th>
+                <th>Valor</th>
+                <th>Estado</th>
+                <th>Fecha</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var compra in Deudas)
+            {
+                <tr>
+                    <td>@compra.CuentaId</td>
+                    <td>@($"{compra.Numero}") </td>
+                    <td>@string.Format("{0:N2}", compra.Valor)</td>
+                    <td>@(compra.Pendiente==true?"Pendiente":"Pago")</td>
+                    <td>@(compra.FechaVencimiento.ToShortDateString())</td>
+                    <td>
+                        <button class="btn btn-danger" @onclick="(() => Delete(compra.Id))">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                        <a class="btn btn-secondary" href="/comprobante/deuda/imprimir/@compra.Id">
+                            <i class="fas fa-dollar-sign"></i>
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+
+
+@code {
+    [Parameter] public int Id { get; set; }
+    private Components.Modals.ConfirmationModal confirmationModal;
+    Cuota[] Deudas { get; set; }
+
+    string txt = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            await LoadDeudas();
+        }
+        catch (Exception)
+        {
+            // Manejo de errores
+        }
+    }
+
+    async Task LoadDeudas()
+    {
+        try
+        {
+            var result = await http.GetFromJsonAsync<List<Cuota>>($"{SEYA.APP.Shared.API.url}/Deuda/Cuota/{Id}");
+            Deudas = result.ToArray();
+        }
+        catch (Exception ex)
+        {
+
+
+        }
+
+    }
+
+    async Task Delete(int id)
+    {
+        if (await new Utils.Functions(js, swl).ShowConfirmation("¿Deseas Anular la Deuda?", "Confirmar"))
+        {
+            var response = await http.DeleteAsync($"{SEYA.APP.Shared.API.url}/Deuda/{id}");
+            if (response.IsSuccessStatusCode)
+                await LoadDeudas();
+            else
+                await new Utils.Functions(js, swl).ShowError("No fue posible anular la Deuda", "Error");
+        }
+    }
+
+
+
+  
+}

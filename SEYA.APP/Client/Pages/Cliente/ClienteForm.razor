@@ -1,0 +1,99 @@
+﻿@page "/Cliente/form"
+@using CurrieTechnologies.Razor.SweetAlert2;
+@using SEYA.APP.Client.Components.Buttons
+@using SEYA.APP.Shared.DTO.Cliente;
+@using SEYA.APP.Shared.Models;
+@using System.Collections.Generic
+@inject HttpClient http
+@inject NavigationManager uriHelper
+@inject SweetAlertService swl;
+
+
+
+    <EditForm Model="@Cliente" OnValidSubmit="@SaveForm">
+ 
+        <div class="form-field">
+            <label>Nombre</label>
+            <div>
+                <InputText class="form-control" @bind-Value="@Cliente.Nombre"></InputText>
+                <ValidationMessage For="@(() => Cliente.Nombre)" />
+            </div>
+        </div>
+
+        <div class="form-field">
+            <label>Apellido</label>
+            <div>
+                <InputText class="form-control" @bind-Value="@Cliente.Apellido"></InputText>
+                <ValidationMessage For="@(() => Cliente.Apellido)" />
+            </div>
+        </div>
+
+        <div class="form-field">
+            <label>Dirección</label>
+            <div>
+                <InputText class="form-control" @bind-Value="@Cliente.Direccion"></InputText>
+                <ValidationMessage For="@(() => Cliente.Direccion)" />
+            </div>
+        </div>
+
+        <div class="form-field">
+            <label>Teléfono</label>
+            <div>
+                <InputText class="form-control" @bind-Value="@Cliente.Telefono"></InputText>
+                <ValidationMessage For="@(() => Cliente.Telefono)" />
+            </div>
+        </div>
+
+        <div class="form-field">
+            <label>Email</label>
+            <div>
+                <InputText class="form-control" @bind-Value="@Cliente.Correo"></InputText>
+                <ValidationMessage For="@(() => Cliente.Correo)" />
+            </div>
+        </div>
+
+        <div class="form-field">
+            <label>Número de Documento</label>
+            <div>
+                <InputText class="form-control" @bind-Value="@Cliente.Cedula"></InputText>
+                <ValidationMessage For="@(() => Cliente.Cedula)" />
+            </div>
+        </div>
+
+  
+
+        <button type="submit" class="btn btn-primary my-2">Guardar</button>
+
+        <DataAnnotationsValidator />
+
+    </EditForm>
+
+<ButtonBack Goto="Cliente/List"></ButtonBack>
+
+@code {
+    [Inject]
+    IJSRuntime runtime { get; set; }
+    [Parameter]
+    public EventCallback Save { get; set; }
+    [Parameter]
+    public int? Id { get; set; } = 0;
+    [Parameter]
+    public ClienteCreateDTO Cliente { get; set; } = new ClienteCreateDTO();
+  
+
+    protected override async Task OnInitializedAsync()
+    {
+
+
+        
+
+    }
+
+    private async Task SaveForm()
+    {
+ 
+            await Save.InvokeAsync();
+            uriHelper.NavigateTo("Cliente/list");
+
+    }
+}

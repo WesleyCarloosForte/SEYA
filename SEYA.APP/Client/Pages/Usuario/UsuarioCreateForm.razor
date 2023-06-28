@@ -1,0 +1,30 @@
+﻿@page "/Usuario/create"
+@using CurrieTechnologies.Razor.SweetAlert2;
+@using SEYA.APP.Shared.DTO.Funcionario;
+@using SEYA.APP.Shared.Models;
+@inject HttpClient http
+@inject IJSRuntime runtime
+@inject SweetAlertService swl
+
+
+<h3>Registrar Usuario</h3>
+<UsuarioForm Id="0" Save="@Save" Usuario="@Usuario">
+
+</UsuarioForm>
+@code {
+
+
+    FuncionarioCreateDTO Usuario = new FuncionarioCreateDTO ();
+
+    async Task Save()
+    {
+        var result = await http.PostAsJsonAsync($"{SEYA.APP.Shared.API.url}/Funcionario", Usuario);
+        if (result.StatusCode == System.Net.HttpStatusCode.Created)
+        {
+            await new Utils.Functions(runtime, swl).ShowSaved();
+
+        }
+        else await new Utils.Functions(runtime, swl).ShowError("No fue posible realizar la operacion", "Error");
+
+    }
+}

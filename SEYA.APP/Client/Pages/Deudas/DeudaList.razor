@@ -1,0 +1,273 @@
+﻿@page "/Deuda/lista"
+@inject HttpClient http
+@inject IJSRuntime js
+@using CurrieTechnologies.Razor.SweetAlert2;
+@using Microsoft.AspNetCore.Components.Forms
+@inject SweetAlertService swl;
+@using SEYA.APP.Client.Components.Buttons
+@using SEYA.APP.Shared.DTO.Cliente;
+@using SEYA.APP.Shared.Models
+<h3>Deudas</h3>
+
+@if (showModal)
+{
+
+<div style="display: @(showModal ? "block" : "none"); position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0, 0, 0, 0.4);">
+    <div style="background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h5 style="margin: 0;">Lista de Nombres</h5>
+            <button type="button" style="background: none; border: none; cursor: pointer; font-size: 24px; font-weight: bold; color: #000;" @onclick="HideModal">&times;</button>
+        </div>
+        <div>
+            <h3>Cliente</h3>
+
+            <div class="input-group my-2 align-items-center">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" style="margin-right: 5px;"><i class="fas fa-search"></i></span>
+                </div>
+                <input type="text" class="form-control px-2" placeholder="Buscar" @bind="@txt2" />
+                <div class="input-group-append" style="margin-left: 5px;">
+                    <button class="btn btn-primary ml-2" type="button" @onclick="(() => BuscarCliente(txt2))">Buscar</button>
+                </div>
+            </div>
+
+            @if (Clientes == null)
+            {
+                <text>Cargando...</text>
+            }
+            else if (Clientes.Length == 0)
+            {
+                <text>No hay clientes en la base de datos.</text>
+            }
+            else
+            {
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th hidden>Id</th>
+                            <th>Nombre</th>
+                            <th>Apellido</th>
+                            <th>Cedula</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var Cliente in Clientes)
+                        {
+                            <tr>
+                                <td hidden>@Cliente.Id</td>
+                                <td>@Cliente.Nombre</td>
+                                <td>@Cliente.Apellido</td>
+                                <td>@Cliente.Cedula</td>
+                                <td>
+                                    <button class="btn btn-success" type="button" @onclick="(()=>SelectName(Cliente))">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+</div>
+
+}
+
+@if (clienteSeleccionado != null)
+{
+    <div class="input-group my-2 align-items-center">
+        <div class="input-group-prepend">
+            <span class="input-group-text" style="margin-right: 5px;"><i class="fas fa-search"></i></span>
+        </div>
+        <input type="text" class="form-control px-2" placeholder="Buscar" @bind="txt" @onkeydown="SearchKeyPress" />
+        <div class="input-group-append" style="margin-left: 5px;">
+            <button class="btn btn-primary ml-2" type="button" @onclick="(() => Buscar(txt))">Buscar</button>
+        </div>
+    </div>
+}
+
+
+
+<div class="input-group my-2 align-items-center">
+    <div class="input-group-prepend">
+        <span class="input-group-text" style="margin-right: 5px;"><i class="fas fa-user"></i></span>
+    </div>
+    @if (clienteSeleccionado == null)
+    {
+        <input type="text" class="form-control px-2" placeholder="Buscar Cliente"  readonly />
+    }
+    else
+    {
+        <input type="text" class="form-control px-2" placeholder="Buscar Cliente" value="@($"{clienteSeleccionado.Nombre} {clienteSeleccionado.Apellido}")" readonly />
+    }
+
+    <div class="input-group-append" style="margin-left: 5px;">
+        <button class="btn btn-primary ml-2" type="button" @onclick="(() => ShowNameList())">...</button>
+    </div>
+
+</div>
+
+
+@if (Deudas == null)
+{
+    <text>Cargando...</text>
+}
+else if (Deudas.Length == 0)
+{
+    <text>No hay Deudas en la base de datos.</text>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th hidden>Id</th>
+                <th>Nro Comprobante</th>
+                <th>Fecha</th>
+                <th>Total</th>
+                <th>Cuotas</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var compra in Deudas)
+            {
+                <tr>
+                    <td hidden>@compra.Id</td>
+                    <td>@($"{compra.NumeroComprobante}") </td>
+                    <td>@compra.Fecha.ToShortDateString()</td>
+                    <td>@string.Format("{0:N2}", compra.ValorTotal)</td>
+                    <td>
+                        <a class="btn btn-secondary" href="/Cuota/lista/@compra.Id">
+                            <i class="fas fa-tasks"></i>
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+}
+
+<ButtonNew Goto="Deuda/Create"></ButtonNew>
+
+
+@code {
+    private Components.Modals.ConfirmationModal confirmationModal;
+    Deuda[] Deudas { get; set; }
+    Cliente clienteSeleccionado { get; set; }
+    Cliente[] Clientes { get; set; }
+    public bool showModal { get; set; } = false;
+    public string txt { get; set; }
+    void ShowNameList()
+    {
+        LoadCliente();
+        showModal = true;
+    }
+    void HideModal()
+    {
+        showModal = false;
+    }
+
+    async Task BuscarCliente(string txt)
+    {
+        if (string.IsNullOrEmpty(txt) || string.IsNullOrWhiteSpace(txt))
+            await LoadCliente();
+        else
+        {
+            var a = await http.GetFromJsonAsync<IEnumerable<ClienteCreateDTO>>($"{SEYA.APP.Shared.API.url}/Clientes/filter/{txt}");
+            Clientes = a.ToArray();
+        }
+    }
+
+
+    async Task LoadCliente()
+    {
+        Clientes = await http.GetFromJsonAsync<Cliente[]>($"{SEYA.APP.Shared.API.url}/Clientes");
+    }
+
+    private async Task SelectName(Cliente cliente)
+    {
+        if (cliente != null)
+        {
+            clienteSeleccionado = cliente;
+            showModal = false;
+            Clientes = null;
+           await LoadDeudas();
+            await Task.CompletedTask;
+
+        }
+
+    }
+
+    public string txt2 = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+           // await LoadDeudas();
+        }
+        catch (Exception)
+        {
+            // Manejo de errores
+        }
+    }
+
+    async Task LoadDeudas()
+    {
+        try
+        {
+            if (clienteSeleccionado != null)
+            {
+
+
+                var result = await http.GetFromJsonAsync<List<Deuda>>($"{SEYA.APP.Shared.API.url}/Deuda/Cliente/{clienteSeleccionado.Id}");
+                Deudas = result.ToArray();
+            }
+            else
+            {
+                clienteSeleccionado = await http.GetFromJsonAsync<Cliente>($"{SEYA.APP.Shared.API.url}/Clientes/default");
+            }
+        }
+        catch (Exception ex)
+        {
+
+
+        }
+
+    }
+
+    async Task Delete(int id)
+    {
+        if (await new Utils.Functions(js, swl).ShowConfirmation("¿Deseas Anular la Deuda?", "Confirmar"))
+        {
+            var response = await http.DeleteAsync($"{SEYA.APP.Shared.API.url}/Deuda/{id}");
+            if (response.IsSuccessStatusCode)
+                await LoadDeudas();
+            else
+                await new Utils.Functions(js, swl).ShowError("No fue posible anular la Deuda", "Error");
+        }
+    }
+
+    private async void SearchKeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await Buscar(txt);
+        }
+    }
+
+    async Task Buscar(string txt)
+    {
+        if (string.IsNullOrEmpty(txt) || string.IsNullOrWhiteSpace(txt))
+            await LoadDeudas();
+        else
+        {
+            var result = await http.GetFromJsonAsync<IEnumerable<Deuda>>($"{SEYA.APP.Shared.API.url}/Deuda/filter/{txt}");
+            Deudas = result.ToArray();
+        }
+    }
+}

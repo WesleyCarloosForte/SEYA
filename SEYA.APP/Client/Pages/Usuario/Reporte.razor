@@ -1,0 +1,62 @@
+﻿@page "/reporte-funcionarios"
+@using SEYA.APP.Shared.Models;
+
+@inject HttpClient http
+@inject IJSRuntime JSRuntime
+
+<h3>Reporte de Funcionarios</h3>
+
+<div id="reporte" style="font-family: Arial, sans-serif;">
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr>
+                <th style="padding: 8px; text-align: left; border-bottom: 1px solid #ddd;">Nombre</th>
+                <th style="padding: 8px; text-align: left; border-bottom: 1px solid #ddd;">Apellido</th>
+                <th style="padding: 8px; text-align: left; border-bottom: 1px solid #ddd;">Teléfono</th>
+                <th style="padding: 8px; text-align: left; border-bottom: 1px solid #ddd;">Correo</th>
+                <th style="padding: 8px; text-align: left; border-bottom: 1px solid #ddd;">Dirección</th>
+                <th style="padding: 8px; text-align: left; border-bottom: 1px solid #ddd;">Cédula</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var funcionario in ListaFuncionarios)
+            {
+                <tr>
+                    <td style="padding: 8px; border-bottom: 1px solid #ddd; width: 30%;">@funcionario.Nombre</td>
+                    <td style="padding: 8px; border-bottom: 1px solid #ddd; width: 30%;">@funcionario.Apellido</td>
+                    <td style="padding: 8px; border-bottom: 1px solid #ddd;">@funcionario.Telefono</td>
+                    <td style="padding: 8px; border-bottom: 1px solid #ddd;">@funcionario.Correo</td>
+                    <td style="padding: 8px; border-bottom: 1px solid #ddd;">@funcionario.Direccion</td>
+                    <td style="padding: 8px; border-bottom: 1px solid #ddd;">@funcionario.Cedula</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<button class="btn btn-primary" @onclick="ImprimirComprobante">Imprimir</button>
+
+@code {
+    private List<Funcionario> ListaFuncionarios = new List<Funcionario>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        ListaFuncionarios = await http.GetFromJsonAsync<List<Funcionario>>($"{SEYA.APP.Shared.API.url}/Funcionario");
+    }
+
+    async void ImprimirComprobante()
+    {
+        string script = @"
+            var printWindow = window.open('', '_blank');
+            printWindow.document.open();
+            printWindow.document.write('<html><head><title>Reporte</title></head><body>');
+            printWindow.document.write('<style>body { font-family: Arial, sans-serif; }</style>');
+            printWindow.document.write('<h1 style=""text-align: center; margin-bottom: 20px;"">Reporte de Funcionarios</h1>');
+            printWindow.document.write(document.getElementById('reporte').innerHTML);
+            printWindow.document.write('</body></html>');
+            printWindow.document.close();
+            printWindow.print();
+            printWindow.onafterprint = function () { printWindow.close(); };
+        ";
+        await JSRuntime.InvokeVoidAsync("eval", script);
+    }
+}

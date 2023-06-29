@@ -7,19 +7,33 @@
     </div>
 </div>
 
-<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
-    <nav class="flex-column">
+<div class="@NavMenuCssClass" id="all"  @onclick="ToggleNavMenu">
+    <nav class="flex-column" >
+
+
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
                 <span class="oi oi-home" aria-hidden="true"></span> Home
             </NavLink>
         </div>
-        <div class="nav-item px-3">
+ 
+        @if (isAdmin)
+        {
+
+        <div class="nav-item px-3" id="fun">
             <NavLink class="nav-link" href="Usuario/list">
                 <span class="oi oi-plus" aria-hidden="true"></span> Funcionarios
             </NavLink>
         </div>
-        <div class="nav-item px-3">
+            <div class="nav-item px-3" id="fa">
+                <NavLink class="nav-link" href="/Comprobante">
+                    <span class="oi oi-list-rich" aria-hidden="true"></span> Datos de facturación
+                </NavLink>
+            </div>
+
+        }
+        
+        <div class="nav-item px-3" >
             <NavLink class="nav-link" href="Cliente/list">
                 <span class="oi oi-list-rich" aria-hidden="true"></span> Clientes
             </NavLink>
@@ -29,13 +43,18 @@
                 <span class="oi oi-list-rich" aria-hidden="true"></span> Cuentas
             </NavLink>
         </div>
+        
     </nav>
+
+        
 </div>
 
 
 
 @code {
     private bool collapseNavMenu = true;
+    [Parameter]
+   public bool isAdmin { get; set; } =false;
 
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 

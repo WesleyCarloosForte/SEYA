@@ -19,7 +19,7 @@
     async Task Save()
     {
         var result = await http.PostAsJsonAsync($"{SEYA.APP.Shared.API.url}/Funcionario", Usuario);
-        if (result.StatusCode == System.Net.HttpStatusCode.Created)
+        if (result.StatusCode == System.Net.HttpStatusCode.OK)
         {
             await new Utils.Functions(runtime, swl).ShowSaved();
 

@@ -25,7 +25,7 @@ namespace SEYA.APP.BACKEND.Controllers
         {
             try
             {
-                var conecion = await _repository.Get(x => ($"{x.Nombre} {x.Apellido}".ToLower().Contains("default")));
+                var conecion = await _repository.GetAll();
 
                 if (conecion == null)
                 {

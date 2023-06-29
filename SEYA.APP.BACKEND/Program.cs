@@ -19,6 +19,7 @@ builder.Services.AddScoped<IRolRepository, RolRepository>();
 builder.Services.AddScoped<IDeudaRepository, DeudaRepository>();
 builder.Services.AddScoped<ICuotaRepository, CuotaRepository>();
 builder.Services.AddScoped<IPagoRepository, PagoRepository>();
+builder.Services.AddScoped<IComprobanteRepository, ComprobanteRepository>();
 builder.Services.AddControllers().AddJsonOptions(x =>
     x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 

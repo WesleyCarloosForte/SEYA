@@ -4,11 +4,13 @@ using SEYA.APP.Shared.Models;
 
 namespace SEYA.APP.BACKEND.Repository
 {
-    public class ComoprobanteRepository:Repository<Comprobante>,IComprobanteRepository
+    public class ComprobanteRepository:Repository<Comprobante>,IComprobanteRepository
     {
-        public ComoprobanteRepository(ServerContex contex):base(contex)
+        public ComprobanteRepository(ServerContex contex):base(contex)
         {
 
         }
+
+
     }
 }

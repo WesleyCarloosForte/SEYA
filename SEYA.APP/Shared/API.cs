@@ -8,6 +8,7 @@ namespace SEYA.APP.Shared
 {
     public class API
     {
-        public static string url = "https://localhost:7135/api";
+
+        public static string url = "http://localhost:7135/api";
     }
 }

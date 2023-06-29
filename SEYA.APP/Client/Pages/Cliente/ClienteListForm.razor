@@ -6,6 +6,8 @@
 @using SEYA.APP.Client.Components.Buttons
 @using SEYA.APP.Shared.DTO.Cliente;
 @inject SweetAlertService swl;
+@inject NavigationManager nav;
+<button class="btn btn-primary my-2" @onclick="MostrarReprte"><i class="fas fa-list"></i>&nbsp;Reporte de clientes</button>
 <h3>Cliente</h3>
 
 <div class="input-group my-2 align-items-center">
@@ -80,7 +82,7 @@ else
 
 
         }
-        
+
     }
     async Task LoadCliente()
     {
@@ -121,7 +123,10 @@ else
 
     }
 
-
+    void MostrarReprte()
+    {
+        nav.NavigateTo("/reporte-Clientes");
+    }
 
 
 

@@ -9,5 +9,6 @@ namespace SEYA.APP.Shared.Interface
 {
     public interface IDeudaRepository:IRepository<Deuda>
     {
+        
     }
 }

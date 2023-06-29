@@ -4,6 +4,7 @@
     {
         public static bool IsMenuVisible { get; set; } = false;
         public static bool IsSalirVisible { get; set; } = false;
+        public static bool IsVisibleAll { get; set; } = false;
         public static void ShowSalir()
         {
             IsSalirVisible= true;
@@ -20,5 +21,10 @@
         {
             IsMenuVisible = false;
         }
+        public static void HideMenuAll()
+        {
+            IsVisibleAll = false;
+        }
+        public static bool Nave =true;
     }
 }

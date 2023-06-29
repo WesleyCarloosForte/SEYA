@@ -51,7 +51,7 @@ else
                 <th>Fecha Vencimiento</th>
                 <th>Total</th>
                 <th>Estado</th>
-                <th>Pagar</th>
+                <th></th>
                 
             </tr>
         </thead>
@@ -70,6 +70,12 @@ else
                             <button class="btn btn-success" @onclick="(() => PagarCuota(compra.Id))">
                                 <i class="fas fa-dollar-sign"></i>
                             </button>
+                        }
+                        else
+                        {
+                            <a class="btn btn-success" href="/comprobante/imprimir/@compra.Id">
+                                <i class="fas fa-print"></i>
+                            </a>
                         }
 
                     </td>
@@ -110,7 +116,7 @@ else
             var response = await http.PutAsJsonAsync($"{SEYA.APP.Shared.API.url}/Deuda/{id}/{CurrentData.UserData.Id}","");
             if (response.IsSuccessStatusCode)
             {
-                await new Utils.Functions(js, swl).ShowConfirmation("","");
+                await new Utils.Functions(js, swl).ShowSaved();
                 await LoadDeudas();
             }
 

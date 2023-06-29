@@ -60,5 +60,7 @@ namespace SEYA.APP.BACKEND.Repository
 
 
         }
+
+
     }
 }

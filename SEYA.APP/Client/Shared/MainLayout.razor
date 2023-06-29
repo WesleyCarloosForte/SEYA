@@ -1,17 +1,85 @@
-﻿@inherits LayoutComponentBase
+﻿@using CurrieTechnologies.Razor.SweetAlert2;
+@using SEYA.APP.Client.Utils;
+@using SEYA.APP.Shared.DTO.Funcionario;
+@inherits LayoutComponentBase
 
 <div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
+    @if (AppState.IsVisibleAll)
+    {
+        <div class="sidebar">
+            <NavMenu isAdmin=MostrarMenu />
+        </div>
+    }
 
     <main>
-        <div class="top-row px-4">
-            <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
-        </div>
+        @if (AppState.IsSalirVisible)
+        {
+            <div class="top-row px-4">
+                <button class="btn btn-link" @onclick=Delete target="_blank">Salir</button>
+            </div>
+        }
+
 
         <article class="content px-4">
             @Body
         </article>
     </main>
 </div>
+
+@code {
+    bool MostrarMenu;
+
+    FuncionarioCreateDTO usuario;
+    [Inject]
+    protected IJSRuntime JSRuntime { get; set; }
+    [Inject] protected SweetAlertService swl { get; set; }
+
+    [Inject]
+    protected NavigationManager NavigationManager { get; set; }
+
+
+    public async Task Delete()
+    {
+        await new Functions(JSRuntime, swl).EliminarUsuarioDesdeLocalStorage();
+        AppState.HideMenu();
+        AppState.HideSalir();
+        AppState.HideMenuAll();
+        NavigationManager.NavigateTo("/login");
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        try
+        {
+ 
+            usuario = await new Functions(JSRuntime, swl).LeerUsuarioDesdeLocalStorage();
+
+            if (usuario == null)
+            {
+                AppState.HideSalir();
+                AppState.HideMenu();
+                AppState.HideMenuAll();
+                NavigationManager.NavigateTo("/login");
+
+            }
+            else
+            {
+                AppState.ShowSalir();
+                if (usuario.RolId == 1)
+                {
+                    AppState.ShowMenu();
+                    MostrarMenu = true;
+                }
+                AppState.IsVisibleAll = true;
+                NavigationManager.NavigateTo("/");
+                NavigationManager.NavigateTo("/");
+            }
+        }
+        catch (Exception ex)
+        {
+            // Manejo de excepciones
+        }
+        // Leer datos del LocalStorage al inicializar el componente
+    }
+}

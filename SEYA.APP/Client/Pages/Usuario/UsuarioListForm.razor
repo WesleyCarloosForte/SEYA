@@ -6,6 +6,8 @@
 @using SEYA.APP.Client.Components.Buttons
 @using SEYA.APP.Shared.DTO.Funcionario;
 @inject SweetAlertService swl;
+@inject NavigationManager nav;
+<button class="btn btn-primary my-2" @onclick="MostrarReprte"><i class="fas fa-list"></i>&nbsp;Reporte de Funcionarios</button>
 <h3>Usuarios</h3>
 
 <div class="input-group my-2 align-items-center">
@@ -80,10 +82,10 @@ else
         }
         catch (Exception ex)
         {
-            
-           
+
+
         }
-        
+
     }
     async Task LoadUsuarios()
     {
@@ -124,7 +126,11 @@ else
 
     }
 
-
+    void MostrarReprte()
+    {
+        
+        nav.NavigateTo("/reporte-funcionarios");
+    }
 
 
 

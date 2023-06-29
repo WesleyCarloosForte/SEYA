@@ -1,4 +1,5 @@
-﻿using SEYA.APP.BACKEND.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using SEYA.APP.BACKEND.Data;
 using SEYA.APP.Shared.Interface;
 using SEYA.APP.Shared.Models;
 
@@ -9,6 +10,10 @@ namespace SEYA.APP.BACKEND.Repository
         public CuotaRepository(ServerContex context):base(context) 
         {
             this.context=context;
+        }
+        public async Task<Cuota> Get(int id)
+        {
+            return await context.Cuotas.Include(x => x.Deuda).ThenInclude(x => x.Cliente).Where(x => x.Id == id).FirstOrDefaultAsync();
         }
         public async Task PagarCuota(int id,int UserId)
         {

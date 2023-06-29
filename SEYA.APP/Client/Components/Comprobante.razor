@@ -1,0 +1,109 @@
+﻿@page "/factura"
+@using SEYA.APP.Shared.DTO
+@using SEYA.APP.Shared.Models
+@inject IJSRuntime JSRuntime
+
+@if (Venta != null && Clientetes != null)
+{
+    <div style="width: 70mm; margin: 0 auto; font-size: 8px; text-align: center;" id="tikect">
+        <div style="margin-bottom: 5px;">
+            <label style="font-weight: bold;">Fecha: </label> @DateTime.Now.ToShortDateString()<br>
+            @if (ValorFiscal)
+            {
+                <label style="font-weight: bold;">Timbrado: </label> @comp.Timbrado
+                <br>
+                <label style="font-weight: bold;">Fecha Inicio Vigencia: </label> @comp.InicioVigencia.Date.ToShortDateString()
+                <br>
+                <label style="font-weight: bold;">Fecha Fin Vigencia: </label> @comp.FinVigencia.Date.ToShortDateString()
+                <br>
+            }
+            <label style="font-weight: bold;">Empresa:></label> Isna<br>
+            <label style="font-weight: bold;">Sucursal: </label>Casa Matriz<br>
+            <label style="font-weight: bold;">Dirección:</label> Km 17-Minga Guasu<br>
+            <label style ="font-weight: bold;">Rubro:</label> Asesoría  Tributaria<br>
+            <label style="font-weight: bold;">Número de Factura: </label> @comp.Comprobante<br>
+            <label style="font-weight: bold;">Condición de Pago: </label> Efectivo<br>
+            <label style="font-weight: bold;">RUC: </label>5420621-0<br>
+            <label style="font-weight: bold;">RUC Cliente: </label> @Clientetes.Cedula<br>
+            <label style="font-weight: bold;">Cliente: </label> @($"{Clientetes.Nombre} {Clientetes.Apellido}")<br>
+        </div>
+        <div style="margin-top: 10px; max-width: 70mm;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <div style="width: 45%; text-align: left; font-weight: bold;">Item</div>
+                <div style="width: 20%; text-align: center; font-weight: bold;">Unit</div>
+                <div style="width: 20%; text-align: center; font-weight: bold;">Tot</div>
+            </div>
+          
+                <div style="display: flex; justify-content: space-between; margin-bottom: 5px; max-width: 70mm; ">
+                    <div style="width: 30%; text-align: left; max-width: 70mm; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">@Venta.Deuda.Descripcion</div>
+                    <div style="width: 40%; text-align: center;">1 X @Venta.Valor.ToString("N0")</div>
+                <div style="width: 40%; text-align: center;"> @Venta.Valor.ToString("N0")</div>
+                </div>
+            
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px; max-width: 70mm; border-top-width:1px;  border: dotted; border-color:black;"></div>
+        </div>
+        <div style="max-width: 70mm; text-align: center; margin-top: 20px;">
+            <label style="font-weight: bold;">Sub Total 5%: </label> 0<br>
+            <label style="font-weight: bold;">Sub Total 10%: </label> @Venta.Valor<br>
+            <label style="font-weight: bold;">Total General: </label> @Venta.Valor<br>
+        </div>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 5px; max-width: 70mm; border-top-width:1px;  border: dotted; border-color:black;"></div>
+  
+    </div>
+    <button class="btn btn-primary" @onclick="ImprimirComprobante">Imprimir</button>
+
+}
+
+@code {
+    [Parameter]
+    public Cuota Venta { get; set; }
+    [Parameter]
+    public SEYA.APP.Shared.Models.Pago  comp { get; set; } 
+
+    
+    [Parameter]
+    public Cliente Clientetes { get; set; }
+    [Parameter]
+    public bool ValorFiscal { get; set; }
+
+    private string DireccionEmpresa = "Dirección de la empresa teste";
+    private string Telefono = "telefono teste";
+    private string Ruc = "0111122";
+    public decimal getIva() => (Venta.Valor * 10) / 100;
+    public decimal getSinIva() => Venta.Valor - ((Venta.Valor * 10) / 100);
+    private bool Imprimir = false;
+
+    private async Task ActualizarCampo()
+    {
+        // Código para actualizar campos
+    }
+
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "I")
+        {
+            if (Venta != null && Clientetes != null)
+                await ImprimirComprobante();
+        }
+    }
+
+    private async Task ImprimirComprobante()
+    {
+        await JSRuntime.InvokeAsync<object>("eval", @"
+var elementoComprobante = document.getElementById('tikect');
+var contenido = elementoComprobante.innerHTML;
+var ventanaImpresion = window.open('', '', 'width=800,height=600');
+ventanaImpresion.document.open();
+ventanaImpresion.document.write('<html><head><title>Comprobante</title>');
+ventanaImpresion.document.write('<style>@media print { @page { margin: 5mm; size: 60mm; } }</style>');
+ventanaImpresion.document.write('<style>body { font-size: 6px; }</style>');
+ventanaImpresion.document.write('</head><body>');
+ventanaImpresion.document.write(contenido);
+ventanaImpresion.document.write('</body></html>');
+ventanaImpresion.document.close();
+ventanaImpresion.print();
+ventanaImpresion.close();
+
+        ");
+    }
+}

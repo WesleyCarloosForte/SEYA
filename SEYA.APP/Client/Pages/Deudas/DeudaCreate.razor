@@ -233,7 +233,7 @@
             var resp=await http.PostAsJsonAsync($"{SEYA.APP.Shared.API.url}/Deuda",Deuda);
             if (resp.StatusCode == System.Net.HttpStatusCode.OK)
             {
-                await new Utils.Functions(js, swl).ShowConfirmation("", "");
+                await new Utils.Functions(js, swl).ShowSaved();
             }
             else
             {

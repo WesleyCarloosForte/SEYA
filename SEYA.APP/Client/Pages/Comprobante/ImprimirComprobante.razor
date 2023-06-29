@@ -1,0 +1,42 @@
+﻿@page "/comprobante/imprimir/{Id:int}"
+@using CurrieTechnologies.Razor.SweetAlert2;
+@using SEYA.APP.Client.Components
+@using SEYA.APP.Shared.Models
+@inject IJSRuntime runtime
+@inject HttpClient http
+@inject SweetAlertService swl
+
+
+
+<Comprobante Clientetes="@cliente" ValorFiscal="@valorFiscal" Venta="@Cuota" comp="pago"></Comprobante>
+
+@code {
+
+    Cuota Cuota;
+    Cliente cliente;
+    Pago pago;
+    bool valorFiscal = true;
+    [Parameter]
+    public int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            Cuota = await http.GetFromJsonAsync<Cuota>($"{SEYA.APP.Shared.API.url}/Deuda/Cuotas/{Id}");
+
+            if (Cuota != null)
+            {
+
+                cliente = Cuota.Deuda.Cliente;
+                pago = await http.GetFromJsonAsync<Pago>($"{SEYA.APP.Shared.API.url}/Deuda/pago/{Id}");
+            }
+        }
+        catch (Exception ex)
+        {
+            
+            
+        }
+
+    }
+}

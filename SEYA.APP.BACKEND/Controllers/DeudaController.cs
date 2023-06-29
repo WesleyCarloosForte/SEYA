@@ -111,7 +111,7 @@ namespace SEYA.APP.BACKEND.Controllers
         }
 
         [HttpGet("Cuota/{id}")]
-        public async Task<ActionResult<Cliente>> GetById(int id)
+        public async Task<ActionResult<Deuda>> GetById(int id)
         {
             try
             {
@@ -123,6 +123,48 @@ namespace SEYA.APP.BACKEND.Controllers
                 }
 
                 return Ok(conecion);
+            }
+            catch (Exception ex)
+            {
+
+                return BadRequest(ex.Message);
+            }
+
+        }
+        [HttpGet("Cuotas/{id}")]
+        public async Task<ActionResult<Cuota>> GetByIdCuota(int id)
+        {
+            try
+            {
+                var conecion = await _CuotaRepository.Get(id);
+
+                if (conecion == null)
+                {
+                    return NoContent();
+                }
+
+                return Ok(conecion);
+            }
+            catch (Exception ex)
+            {
+
+                return BadRequest(ex.Message);
+            }
+
+        }
+        [HttpGet("pago/{id}")]
+        public async Task<ActionResult<Pago>> GetByIdPago(int id)
+        {
+            try
+            {
+                var conecion = await _pagoRepository.Get(x=>x.CuotaId==id);
+
+                if (conecion == null)
+                {
+                    return NoContent();
+                }
+
+                return Ok(conecion.FirstOrDefault());
             }
             catch (Exception ex)
             {

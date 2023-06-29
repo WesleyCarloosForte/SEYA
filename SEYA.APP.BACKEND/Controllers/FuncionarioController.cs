@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SEYA.APP.BACKEND.Repository;
+using SEYA.APP.Shared.DTO;
 using SEYA.APP.Shared.DTO.Funcionario;
 using SEYA.APP.Shared.DTO.Funcionario;
 using SEYA.APP.Shared.Interface;
@@ -140,7 +141,7 @@ namespace SEYA.APP.BACKEND.Controllers
                 return BadRequest(ex.Message);
             }
         }
-
+        
 
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete(int id)
@@ -156,6 +157,31 @@ namespace SEYA.APP.BACKEND.Controllers
                 await _repository.Delete(conecion);
 
                 return Ok();
+            }
+            catch (Exception ex)
+            {
+
+                return BadRequest(ex.Message);
+            }
+
+        }
+
+        [HttpPost("Login")]
+        public async Task<ActionResult<FuncionarioCreateDTO>> Login(LoginDTO funcionario)
+        {
+            try
+            {
+                var conecion = await _repository.Get(x=>x.UserName==funcionario.Login && x.Password==funcionario.Password);
+
+                if (conecion == null)
+                {
+                    return BadRequest("Conexion no encontrada");
+                }
+                
+                
+               
+
+                return Ok(conecion.FirstOrDefault());
             }
             catch (Exception ex)
             {
